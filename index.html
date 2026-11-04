@@ -194,7 +194,7 @@ hr.div{border:none;border-top:1px solid var(--rule);margin:18px 0}
 <hr class="div">
 <div class="panel">
   <p class="pt">Gun-involved crimes by half-year</p>
-  <p class="ps">Federal Hill bar corridor, bar hours &middot; Homicide, Agg. Assault, and Armed Robbery (firearm) shown separately</p>
+  <p class="ps">Federal Hill bar corridor, bar hours &middot; Homicide, Agg. Assault, and Armed Robbery (firearm) shown separately &middot; Cross-hatched bar = current half-year in progress (2026 H2 = Jul 1&#8211;Oct 31)</p>
   <div class="cw" style="height:260px"><canvas id="c10half"></canvas></div>
 <p class="tnote">Definition expanded Aug 2026 to include Robbery with a firearm-type weapon (handgun, firearm, rifle, shotgun, and automatic variants), in addition to Homicide and Agg. Assault (firearm). Robbery-Carjacking and Robbery-Commercial are included using the same firearm-weapon filter but had zero qualifying incidents in this corridor; Robbery-Commercial is dropped when it shares a case number with a Robbery record, matching the dashboard-wide dedup rule.</p>
 </div>
@@ -691,12 +691,19 @@ function buildP10(){
     plugins:[homLabelPlugin]});
 
   // Half-year stacked chart
-  new Chart("c10half",{type:"bar",data:{labels:GUN_HALFYEAR_FH.labels,datasets:[
-    {label:"Agg. Assault (firearm)",data:GUN_HALFYEAR_FH.agg,backgroundColor:"#FCA5A5"},
-    {label:"Armed Robbery (firearm)",data:GUN_HALFYEAR_FH.rob,backgroundColor:"#F59E0B"},
-    {label:"Homicide",data:GUN_HALFYEAR_FH.hom,backgroundColor:"#7C2D12"}
+  // Last half-year is partial: draw it with a light cross-hatch
+  function halfHatch(c){var cv=document.createElement("canvas");cv.width=cv.height=8;var x=cv.getContext("2d");
+    x.fillStyle="#fff";x.fillRect(0,0,8,8);x.globalAlpha=0.35;x.fillStyle=c;x.fillRect(0,0,8,8);x.globalAlpha=1;
+    x.strokeStyle=c;x.lineWidth=1.2;x.beginPath();x.moveTo(0,0);x.lineTo(8,8);x.moveTo(8,0);x.lineTo(0,8);x.stroke();return x.createPattern(cv,"repeat");}
+  var halfN=GUN_HALFYEAR_FH.labels.length;
+  function halfBg(c){return GUN_HALFYEAR_FH.labels.map(function(l,i){return i===halfN-1?halfHatch(c):c;});}
+  function halfBd(c){return GUN_HALFYEAR_FH.labels.map(function(l,i){return i===halfN-1?c:"transparent";});}
+  new Chart("c10half",{type:"bar",data:{labels:GUN_HALFYEAR_FH.labels.map(function(l,i){return i===halfN-1?[l,"(thru Oct 31)"]:l;}),datasets:[
+    {label:"Agg. Assault (firearm)",data:GUN_HALFYEAR_FH.agg,backgroundColor:halfBg("#FCA5A5"),borderColor:halfBd("#F87171"),borderWidth:1},
+    {label:"Armed Robbery (firearm)",data:GUN_HALFYEAR_FH.rob,backgroundColor:halfBg("#F59E0B"),borderColor:halfBd("#D97706"),borderWidth:1},
+    {label:"Homicide",data:GUN_HALFYEAR_FH.hom,backgroundColor:halfBg("#7C2D12"),borderColor:halfBd("#7C2D12"),borderWidth:1}
   ]},options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{position:"bottom",labels:{font:{size:10},boxWidth:10}}},
+    plugins:{legend:{position:"bottom",labels:{font:{size:10},boxWidth:10,generateLabels:function(ch){var c=["#FCA5A5","#F59E0B","#7C2D12"];return ch.data.datasets.map(function(d,i){return{text:d.label,fillStyle:c[i],strokeStyle:c[i],lineWidth:0,hidden:!ch.isDatasetVisible(i),datasetIndex:i};});}}}},
     scales:{x:{stacked:true,ticks:{font:{size:9}},grid:{display:false}},
       y:{stacked:true,beginAtZero:true,ticks:{font:{size:10}},grid:{color:"rgba(0,0,0,0.05)"}}}}});
   }catch(e){console.error("Gun Violence charts failed to build",e);}
