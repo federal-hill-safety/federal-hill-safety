@@ -712,10 +712,9 @@ function buildGunMap(){
   var map=L.map("gunmap",{minZoom:11,maxZoom:18,zoomSnap:0.1}).setView([39.281,-76.605],13);
   window._gunMap=map;
   var TILE_SOURCES=[
-    {layers:[{url:"https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",opts:{attribution:"&copy; OpenStreetMap contributors &copy; CARTO",maxZoom:19,subdomains:"abcd"}}]},
     {layers:[
-      {url:"https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",opts:{attribution:"Tiles &copy; Esri",maxZoom:16}},
-      {url:"https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}",opts:{maxZoom:16}}
+      {url:"https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",opts:{attribution:"Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors",maxNativeZoom:16,maxZoom:19}},
+      {url:"https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}",opts:{maxNativeZoom:16,maxZoom:19}}
     ]},
     {layers:[{url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",opts:{attribution:"&copy; OpenStreetMap contributors",maxZoom:19}}]}
   ];
